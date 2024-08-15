@@ -3,6 +3,16 @@ import { View, TouchableHighlight, Text, TextInput, Button, StyleSheet, Alert } 
 
 const BaseURL = 'http://10.0.2.2:3000';
 
+import { NavigationContainer } from '@react-navigation/native';
+import {createNativeStackNavigator} from '@react-navigation/native-stack';
+
+import ProfileScreen from './ProfileScreen';
+import ProvideServiceScreen from './ProvideServiceScreen';
+import RequestServiceScreen from './RequestServiceScreen';
+
+const Stack = createNativeStackNavigator();
+
+
 const CStyle = StyleSheet.create({
   baseText: {
     fontFamily: 'Cochin',
@@ -51,6 +61,7 @@ const App = ({ navigation }) => {
   const [waitMessage, setWaitMessage] = useState(false);
   const [checkedNumber, setCheckedNumber] = useState('');
   const [retry, setRetry] = useState(false);
+
 
   const reset = () => {
     setPhoneInserted(false);
@@ -122,66 +133,18 @@ const App = ({ navigation }) => {
   };
 
   return (
-    <View style={{ flex: 1, justifyContent: 'center' }}>
-      <View style={{ paddingLeft: 30 }}>
-        <TouchableHighlight
-          activeOpacity={0.6}
-          underlayColor="#DDDDDD"
-          onPress={() => navigation.navigate('prevPage')}
-          style={{ marginTop: 40, marginBottom: 20 }}
-        >
-          <Text style={{ textDecorationLine: 'underline' }}>Go Back</Text>
-        </TouchableHighlight>
-        <Text style={[CStyle.baseText, CStyle.titleText, { marginBottom: 20 }]}>
-          Verify your phone number
-        </Text>
-        <Text style={[CStyle.baseText, { marginBottom: 20, maxWidth: 300 }]}>
-          Your cell phone number will be used for account verification and notifications. Standard rates will apply.
-        </Text>
-      </View>
-      <View style={{ marginBottom: 20, alignSelf: 'center' }}>
-        <TextInput
-          style={CStyle.textContainer}
-          value={phone}
-          onChangeText={setPhone}
-          keyboardType="phone-pad"
-          placeholder="Enter phone number with country code"
-          editable={!phoneInserted}
-        />
-      </View>
-      {waitMessage && (
-        <Text style={[CStyle.baseText, { marginBottom: 20, paddingLeft: 30, maxWidth: 300 }]}>
-          Wait for verification code to be sent
-        </Text>
-      )}
-      {!phoneInserted ? (
-        <View style={CStyle.buttonContainer}>
-          <Button title="Send Code" onPress={sendCode} />
-        </View>
-      ) : (
-        <View>
-          <TextInput
-            style={[
-              CStyle.shadow,
-              CStyle.textContainer,
-              { display: !waitMessage ? 'flex' : 'none' },
-            ]}
-            onChangeText={setVerification}
-            value={verification}
-            keyboardType="numeric"
-            placeholder="Verification Code"
-          />
-          <View style={{ display: !waitMessage ? 'flex' : 'none', alignSelf: 'center' }}>
-            <Button onPress={verifyCode} title="Verify" />
-          </View>
-        </View>
-      )}
-      {retry && (
-        <View style={{ display: !waitMessage ? 'flex' : 'none', alignSelf: 'center' }}>
-          <Button onPress={retryCode} title="Retry" />
-        </View>
-      )}
-    </View>
+
+        <NavigationContainer>
+              <Stack.Navigator>
+                <Stack.Screen
+                  name="Home"
+                  component={ProfileScreen}
+                />
+                <Stack.Screen name="ProvideService" component={ProvideServiceScreen} />
+                <Stack.Screen name="RequestService" component={RequestServiceScreen} />
+              </Stack.Navigator>
+            </NavigationContainer>
+
   );
 };
 
