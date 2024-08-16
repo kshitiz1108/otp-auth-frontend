@@ -1,83 +1,101 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, Button, Alert, StyleSheet, TouchableOpacity } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, TextInput, Button, StyleSheet, Alert } from 'react-native';
+import io from 'socket.io-client';
+
+const socket = io('http://10.0.2.2:3000');
 
 const RequestServiceScreen = () => {
-  const [userName, setUserName] = useState('');
-    const [serviceType, setServiceType] = useState('');
+  const [formData, setFormData] = useState({
+    name: '',
+    typeOfHelp: '',
+    hospital: '',
+    tipAmount: '',
+  });
 
-    const handleServiceTypeSelect = (type) => {
-      setServiceType(type);
+  useEffect(() => {
+    socket.connect();
+    socket.on("connect:error", (error) => {
+        console.log(error)
+    })
+    return () => {
+      socket.disconnect();
     };
+  }, []);
 
-    const handleSubmit = () => {
-      if (!userName || !serviceType) {
-        Alert.alert('Error', 'Please fill in all fields');
-        return;
-      }
+  const handleChange = (name, value) => {
+    setFormData({
+      ...formData,
+      [name]: value,
+    });
+  };
 
-      // Submit the form data
-      const requestData = {
-        userName,
-        serviceType,
-      };
+  const handleSubmit = () => {
+    if (formData.name && formData.typeOfHelp) {
+      socket.emit('request:sent', formData);
+      Alert.alert('Success', JSON.stringify(formData));
 
-      console.log('Request Data:', requestData);
-      Alert.alert('Request Submitted', `Service Type: ${serviceType} for ${userName}`);
+    } else {
+      Alert.alert('Error', 'Please fill all required fields.');
+    }
+  };
 
+  return (
+    <View style={styles.container}>
+      <Text style={styles.heading}>Request Service</Text>
 
-      navigation.navigate('ServiceStatus', { requestData });
-    };
+      <TextInput
+        style={styles.input}
+        placeholder="Your Name"
+        value={formData.name}
+        onChangeText={(value) => handleChange('name', value)}
+      />
 
-    return (
-      <View style={styles.container}>
-        <Text style={styles.label}>User Name:</Text>
-        <TextInput
-          style={styles.input}
-          value={userName}
-          onChangeText={setUserName}
-          placeholder="Enter your name"
-        />
+      <TextInput
+        style={styles.input}
+        placeholder="Type of Help"
+        value={formData.typeOfHelp}
+        onChangeText={(value) => handleChange('typeOfHelp', value)}
+      />
 
-        <Text style={styles.label}>Service Type:</Text>
-        <View style={styles.buttonGroup}>
-          <TouchableOpacity
-            style={[styles.serviceButton, serviceType === 'medical' && styles.selectedButton]}
-            onPress={() => handleServiceTypeSelect('medical')}
-          >
-            <Text style={styles.buttonText}>Medical Assistance</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.serviceButton, serviceType === 'roadside' && styles.selectedButton]}
-            onPress={() => handleServiceTypeSelect('roadside')}
-          >
-            <Text style={styles.buttonText}>Roadside Assistance</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.serviceButton, serviceType === 'fire' && styles.selectedButton]}
-            onPress={() => handleServiceTypeSelect('fire')}
-          >
-            <Text style={styles.buttonText}>Fire Rescue</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.serviceButton, serviceType === 'police' && styles.selectedButton]}
-            onPress={() => handleServiceTypeSelect('police')}
-          >
-            <Text style={styles.buttonText}>Police Assistance</Text>
-          </TouchableOpacity>
-        </View>
+      <TextInput
+        style={styles.input}
+        placeholder="Preferred Hospital"
+        value={formData.hospital}
+        onChangeText={(value) => handleChange('hospital', value)}
+      />
 
-        <Button title="Request Service" onPress={handleSubmit} />
+      <TextInput
+        style={styles.input}
+        placeholder="Tip Amount"
+        keyboardType="numeric"
+        value={formData.tipAmount}
+        onChangeText={(value) => handleChange('tipAmount', value)}
+      />
 
-      </View>
-    );
+      <Button title="Request Service" onPress={handleSubmit} />
+    </View>
+  );
 };
-
-export default RequestServiceScreen;
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    padding: 20,
     justifyContent: 'center',
-    alignItems: 'center',
+  },
+  heading: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 20,
+    textAlign: 'center',
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: '#ccc',
+    padding: 10,
+    marginBottom: 15,
+    borderRadius: 5,
   },
 });
+
+export default RequestServiceScreen;

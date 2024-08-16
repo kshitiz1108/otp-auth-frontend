@@ -9,6 +9,7 @@ import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import ProfileScreen from './ProfileScreen';
 import ProvideServiceScreen from './ProvideServiceScreen';
 import RequestServiceScreen from './RequestServiceScreen';
+import AllRequests from './AllRequests'
 
 const Stack = createNativeStackNavigator();
 
@@ -61,6 +62,8 @@ const App = ({ navigation }) => {
   const [waitMessage, setWaitMessage] = useState(false);
   const [checkedNumber, setCheckedNumber] = useState('');
   const [retry, setRetry] = useState(false);
+
+  const [requests, setRequests] = useState([]);
 
 
   const reset = () => {
@@ -142,6 +145,7 @@ const App = ({ navigation }) => {
                 />
                 <Stack.Screen name="ProvideService" component={ProvideServiceScreen} />
                 <Stack.Screen name="RequestService" component={RequestServiceScreen} />
+                <Stack.Screen name="AllRequests" component={AllRequests} />
               </Stack.Navigator>
             </NavigationContainer>
 
